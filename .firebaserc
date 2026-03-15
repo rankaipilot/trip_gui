@@ -1,0 +1,23 @@
+{
+  "projects": {
+    "test": "tripman-test",
+    "prod": "tripman-prod"
+  },
+  "targets": {
+    "tripman-test": {
+      "hosting": {
+        "app": [
+          "tripman-test-01"
+        ]
+      }
+    },
+    "tripman-prod": {
+      "hosting": {
+        "app": [
+          "tripman-prod-01"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

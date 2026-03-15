@@ -1,0 +1,29 @@
+<div class="page-container">
+    <div class="map-container" role="img" aria-label="Live ride tracking map">
+        <div style="display:flex;align-items:center;justify-content:center;height:100%;background:var(--trip-surface-variant);">
+            <mat-icon style="font-size:48px;width:48px;height:48px;">map</mat-icon>
+        </div>
+    </div>
+
+    <mat-card style="margin-top:16px;">
+        <mat-card-content>
+            <ride-state-chip [state]="rideStore.rideState()" />
+            <p style="margin-top:8px;">ETA: {{ rideStore.etaDisplay() }}</p>
+
+            @if (rideStore.rideState() === 'Q') {
+                <p>Finding your driver...</p>
+                <countdown-timer [seconds]="120" />
+            }
+
+            @if (rideStore.canCancel()) {
+                <button mat-raised-button color="warn" style="margin-top:12px;">Cancel Ride</button>
+            }
+
+            @if (rideStore.showSOS()) {
+                <button mat-raised-button color="warn" style="margin-top:12px;" aria-label="Emergency SOS">
+                    <mat-icon>emergency</mat-icon> SOS
+                </button>
+            }
+        </mat-card-content>
+    </mat-card>
+</div>

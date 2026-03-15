@@ -1,0 +1,201 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&display=swap');
+
+/* Global resets */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Layout utilities */
+.page-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+/* Table styles */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table th, table td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--trip-border);
+}
+
+table th {
+  font-weight: 600;
+  color: var(--trip-on-surface-variant);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+table tbody tr:hover {
+  background-color: var(--trip-surface-variant);
+}
+
+/* Link styles in tables */
+table a {
+  color: var(--trip-primary);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+table a:hover {
+  text-decoration: underline;
+}
+
+/* Form container */
+.form-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+
+.form-container > * {
+  flex: 1 1 280px;
+  max-width: 400px;
+}
+
+/* Edit container */
+.edit-container {
+  padding: 16px 0;
+}
+
+.actions-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+/* Detail table rows */
+.deleted-record {
+  opacity: 0.4;
+  text-decoration: line-through;
+}
+
+.updated-record {
+  background-color: var(--trip-warning-light) !important;
+}
+
+.new-record {
+  background-color: var(--trip-success-light) !important;
+}
+
+/* Sidenav */
+.sidenav-container {
+  height: 100%;
+}
+
+.sidenav {
+  width: 260px;
+}
+
+/* Tab content spacing */
+.tab-content {
+  padding: 16px 0;
+}
+
+/* Status text */
+.status-text {
+  color: var(--trip-on-surface-variant);
+  padding: 24px;
+  text-align: center;
+}
+
+/* Search form */
+.search-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  align-items: flex-end;
+}
+
+.search-actions {
+  display: flex;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+/* Detail actions */
+.detail-actions {
+  margin-bottom: 12px;
+}
+
+/* Responsive table */
+.table-container {
+  overflow-x: auto;
+}
+
+/* Lookup */
+.select-btn {
+  cursor: pointer;
+  color: var(--trip-primary);
+  background: none;
+  border: 1px solid var(--trip-primary);
+  border-radius: 4px;
+  padding: 4px 12px;
+}
+
+.select-btn:hover {
+  background-color: var(--trip-primary);
+  color: white;
+}
+
+/* Ride state chip */
+.ride-state-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Card grid */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+/* KPI grid */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* Map container */
+.map-container {
+  width: 100%;
+  height: 400px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Gradient hero */
+.gradient-hero {
+  background: var(--trip-gradient);
+  color: white;
+  padding: 48px 24px;
+  text-align: center;
+  border-radius: 0 0 16px 16px;
+}

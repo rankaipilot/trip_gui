@@ -1,0 +1,15 @@
+<div class="page-container">
+    <h2>{{ caption }} Search</h2>
+    <div class="search-form">
+        @for (param of report.Params; track param.Name) {
+            <mat-form-field>
+                <mat-label>{{ paramLabel(param) }}</mat-label>
+                <input matInput [type]="inputType(param)" [ngModel]="searchValues[param.Name]" (ngModelChange)="searchValues[param.Name] = $event">
+            </mat-form-field>
+        }
+        <div class="search-actions">
+            <button mat-raised-button color="primary" (click)="onSearch()">Search</button>
+            <button mat-raised-button (click)="onClear()">Clear</button>
+        </div>
+    </div>
+</div>

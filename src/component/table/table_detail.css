@@ -1,0 +1,18 @@
+/* Component-specific styles only — table base & mat-icon are in styles.css */
+
+.deleted-record {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.deleted-record td {
+  color: var(--raip-text-hint);
+}
+
+.updated-record td {
+  color: var(--raip-navy);
+}
+
+.new-record td {
+  color: var(--raip-success);
+}

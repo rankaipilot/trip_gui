@@ -1,0 +1,22 @@
+<div class="page-container">
+    <h2>Ride History</h2>
+    @if (rides().length === 0) {
+        <p class="status-text">No rides yet. Book your first ride!</p>
+    }
+    @for (ride of rides(); track ride.RideId) {
+        <mat-card style="margin-bottom:12px;">
+            <mat-card-content>
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                        <p><strong>{{ ride.PickupAddress }}</strong> &rarr; <strong>{{ ride.DropoffAddress }}</strong></p>
+                        <p>{{ ride.RequestedAt | date:'medium' }}</p>
+                    </div>
+                    <div style="text-align:right;">
+                        <ride-state-chip [state]="asRideStatus(ride.Status)" />
+                        <p style="font-weight:700;margin-top:4px;">{{ ride.ActualFare | currency }}</p>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+    }
+</div>

@@ -1,0 +1,40 @@
+<div class="page-container">
+    <h2>Driver Dashboard</h2>
+
+    <mat-card style="margin-bottom:24px;text-align:center;padding:24px;">
+        <mat-slide-toggle [checked]="isOnline()" (change)="toggleOnline()" color="primary">
+            {{ isOnline() ? 'Online' : 'Offline' }}
+        </mat-slide-toggle>
+    </mat-card>
+
+    <div class="kpi-grid">
+        <mat-card>
+            <mat-card-content>
+                <mat-icon>directions_car</mat-icon>
+                <h3>0</h3>
+                <p>Rides Today</p>
+            </mat-card-content>
+        </mat-card>
+        <mat-card>
+            <mat-card-content>
+                <mat-icon>payments</mat-icon>
+                <h3>$0.00</h3>
+                <p>Today's Earnings</p>
+            </mat-card-content>
+        </mat-card>
+        <mat-card>
+            <mat-card-content>
+                <mat-icon>schedule</mat-icon>
+                <h3>0h</h3>
+                <p>Online Hours</p>
+            </mat-card-content>
+        </mat-card>
+        <mat-card>
+            <mat-card-content>
+                <mat-icon>thumb_up</mat-icon>
+                <h3>0%</h3>
+                <p>Acceptance Rate</p>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>

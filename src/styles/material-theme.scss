@@ -1,0 +1,78 @@
+@use '@angular/material' as mat;
+
+html {
+  height: 100%;
+  @include mat.theme((
+    color: (
+      primary: mat.$azure-palette,
+      tertiary: mat.$blue-palette,
+    ),
+    typography: Inter,
+    density: -1,
+  ));
+
+  // TRIPMAN Brand Color Tokens
+  --trip-primary: #1976D2;
+  --trip-primary-light: #42A5F5;
+  --trip-primary-dark: #0D47A1;
+  --trip-secondary: #F57C00;
+  --trip-secondary-light: #FFB74D;
+  --trip-secondary-dark: #E65100;
+  --trip-gradient: linear-gradient(135deg, #F57C00, #FFB74D, #42A5F5, #1976D2);
+  --trip-gradient-subtle: linear-gradient(135deg, #FFF3E0, #E3F2FD);
+
+  // Surface & Text
+  --trip-surface: #FFFFFF;
+  --trip-surface-dim: #FAFAFA;
+  --trip-surface-variant: #F5F5F5;
+  --trip-surface-container: #EEEEEE;
+  --trip-on-surface: #212121;
+  --trip-on-surface-variant: #757575;
+  --trip-on-surface-hint: #9E9E9E;
+  --trip-border: #E0E0E0;
+  --trip-border-light: #EEEEEE;
+
+  // Semantic
+  --trip-error: #D32F2F;
+  --trip-error-light: #FFCDD2;
+  --trip-success: #388E3C;
+  --trip-success-light: #C8E6C9;
+  --trip-warning: #FFA000;
+  --trip-warning-light: #FFF3E0;
+  --trip-info: #1976D2;
+
+  // Override Material system variables with TRIPMAN palette
+  --mat-sys-primary: var(--trip-primary);
+  --mat-sys-on-primary: #FFFFFF;
+  --mat-sys-primary-container: #E3F2FD;
+  --mat-sys-on-primary-container: var(--trip-primary-dark);
+  --mat-sys-secondary: var(--trip-secondary);
+  --mat-sys-on-secondary: #FFFFFF;
+  --mat-sys-secondary-container: #FFF3E0;
+  --mat-sys-on-secondary-container: var(--trip-secondary-dark);
+  --mat-sys-tertiary: #00796B;
+  --mat-sys-on-tertiary: #FFFFFF;
+  --mat-sys-surface: var(--trip-surface);
+  --mat-sys-on-surface: var(--trip-on-surface);
+  --mat-sys-on-surface-variant: var(--trip-on-surface-variant);
+  --mat-sys-surface-container: var(--trip-surface-container);
+  --mat-sys-surface-container-low: var(--trip-surface-dim);
+  --mat-sys-surface-container-high: var(--trip-surface-container);
+  --mat-sys-outline: var(--trip-border);
+  --mat-sys-outline-variant: var(--trip-border-light);
+  --mat-sys-error: var(--trip-error);
+  --mat-sys-on-error: #FFFFFF;
+
+  // Toolbar overrides — dark blue
+  --mat-toolbar-container-background-color: var(--trip-primary-dark);
+  --mat-toolbar-container-text-color: #FFFFFF;
+}
+
+body {
+  color-scheme: light;
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+  margin: 0;
+  height: 100%;
+}

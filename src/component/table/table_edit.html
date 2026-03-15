@@ -1,0 +1,49 @@
+<h1 class="mat-h1">
+    @if (title) {
+        {{ title }}
+    } @else if (isNew) {
+        New {{ getCaption() }} Record
+    } @else {
+        {{ getCaption() }} Details
+    }
+</h1>
+
+<div class="edit-container">
+    <div class="actions-bar">
+        @if (isReadOnlyMode) {
+            @if (canUpdate()) {
+                <button mat-raised-button color="primary" (click)="onEdit()">Edit</button>
+            }
+            @if (canCreate()) {
+                <button mat-raised-button color="accent" (click)="onNew()">New</button>
+            }
+            @if (canDelete()) {
+                <button mat-button color="warn" (click)="onDelete()">Delete</button>
+            }
+        } @else {
+            <button mat-raised-button color="primary" (click)="onSave()">Save</button>
+            <button mat-button (click)="onCancel()">Cancel</button>
+        }
+    </div>
+
+    <record-form [tableName]="tableName" [record]="editableRecord" [isReadOnly]="isReadOnlyBound"></record-form>
+
+    @if (tabCount > 0) {
+        <mat-tab-group>
+        @for (key of tabFields; track key) {
+            @if (cacheService.canRead(getTableName(key))) {
+                <mat-tab [label]="key">
+                    <div class="tab-content">
+                        <table-detail
+                           [records]="editableRecord[key]"
+                           [tableName]="getTableName(key)"
+                           [parentTableName]="tableName"
+                           [parentRecord]="editableRecord">
+                        </table-detail>
+                    </div>
+                </mat-tab>
+            }
+        }
+        </mat-tab-group>
+    }
+</div>

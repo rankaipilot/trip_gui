@@ -1,0 +1,34 @@
+<div class="page-container">
+    <h2>{{ caption }}</h2>
+
+    @if (loading()) {
+        <p class="status-text">Loading...</p>
+    }
+
+    @if (!loading() && records().length === 0) {
+        <p class="status-text">No records found.</p>
+    }
+
+    @if (!loading() && records().length > 0) {
+        <div class="table-container">
+            <table role="grid">
+                <thead>
+                    <tr>
+                        @for (col of displayedColumns(); track col) {
+                            <th>{{ colCaption(col) }}</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (record of records(); track $index) {
+                        <tr>
+                            @for (col of displayedColumns(); track col) {
+                                <td>{{ record[col] }}</td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

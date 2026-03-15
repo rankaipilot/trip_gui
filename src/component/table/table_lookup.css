@@ -1,0 +1,23 @@
+/* Component-specific styles only — table base is in styles.css */
+
+.lookup-table {
+  margin-top: 10px;
+}
+
+.lookup-table td {
+  border: 1px solid var(--raip-border);
+}
+
+.search-actions {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.select-btn {
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: var(--raip-teal);
+  padding: 0;
+  text-decoration: underline;
+}

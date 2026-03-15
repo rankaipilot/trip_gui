@@ -1,0 +1,37 @@
+<h2>{{ getCaption() }}</h2>
+
+@if (canCreate()) {
+    <button mat-raised-button color="accent" (click)="addRecord()">New Record</button>
+}
+
+<table>
+    <thead>
+        <tr>
+            @for (column of displayedColumns; track column) {
+                <th>{{ colCaption(column) }}</th>
+            }
+        </tr>
+    </thead>
+@if (records.length > 0) {
+    <tbody>
+    @for (record of records; track trackByRecord($index, record)) {
+        <tr>
+        @for (column of displayedColumns; track column) {
+            <td>
+            @if (isLinkColumn(column)) {
+                <a (click)="editRecord(record)">{{ record[column] }}</a>
+            } @else if (isBoolean(column)) {
+                <mat-checkbox [checked]="record[column] === 'T'" disabled></mat-checkbox>
+            } @else if (column !== 'actions') {
+                {{ record[column] }}
+            } @else {
+                <button (click)="editRecord(record)">Edit</button>
+                <button (click)="deleteRecord(record)">Delete</button>
+            }
+            </td>
+        }
+        </tr>
+    }
+    </tbody>
+}
+</table>
