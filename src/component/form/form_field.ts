@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { BaseTable } from 'component/abstract/base_table';
+import { BaseTable, ColumnType } from 'component/abstract/base_table';
 import { ConstantValue } from 'model/tripdb';
 import { TableLookup } from 'component/table/table_lookup';
 
@@ -14,6 +14,9 @@ import { TableLookup } from 'component/table/table_lookup';
     selector: 'dynamic-field',
     templateUrl: './form_field.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
+    host: {
+        '[class.field-wide]': 'isTextArea',
+    },
     imports: [
         MatButtonModule,
         MatCheckboxModule,
@@ -31,7 +34,7 @@ export class DynamicField extends BaseTable {
     readonly field = input('');
     readonly label = input('');
     readonly readonlyField = input(false, {alias: 'readonly'});
-    readonly subscriptSizing = input<'fixed' | 'dynamic'>('fixed');
+    readonly subscriptSizing = input<'fixed' | 'dynamic'>('dynamic');
     readonly appearance = input<'fill' | 'outline'>('fill');
 
     private readonly dialog = inject(MatDialog);
@@ -43,6 +46,20 @@ export class DynamicField extends BaseTable {
     get inputType() {
         if (!this.col || !this.col.Inputtype || this.col.LookupStyle === 'S') return 'text';
         return this.col.Inputtype;
+    }
+
+    get isTextArea(): boolean {
+        if (!this.col) return false;
+        if (this.col.Datatype === ColumnType.PG_TEXT || this.col.Datatype === ColumnType.PG_JSONB) return true;
+        if (this.col.Size > 80) return true;
+        return false;
+    }
+
+    get textAreaRows(): number {
+        if (!this.col) return 3;
+        if (this.col.Datatype === ColumnType.PG_TEXT || this.col.Datatype === ColumnType.PG_JSONB) return 4;
+        if (this.col.Size > 500) return 4;
+        return 2;
     }
 
     isLookupTableSearch(): boolean {

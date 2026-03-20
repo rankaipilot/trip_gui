@@ -35,3 +35,7 @@
     </tbody>
 }
 </table>
+
+@if (records.length === 0 && displayedColumns.length > 0) {
+    <p class="empty-state">No records found.</p>
+}

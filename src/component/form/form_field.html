@@ -17,6 +17,18 @@
     </mat-form-field>
 } @else if (inputType === 'checkbox') {
     <mat-checkbox [checked]="value() === '1'" (change)="onCheckboxChange($event);" [disabled]="readonlyField()">{{ colCaption(field()) }}</mat-checkbox>
+} @else if (isTextArea) {
+    <mat-form-field [appearance]="appearance()" [subscriptSizing]="subscriptSizing()">
+        <mat-label>{{ colCaption(field()) }}</mat-label>
+        <textarea matInput
+         [value]="value()"
+         (input)="onInputChange($event);"
+         [disabled]="readonlyField()"
+         [required]="required"
+         [attr.maxLength]="maxLength"
+         [rows]="textAreaRows">
+        </textarea>
+    </mat-form-field>
 } @else {
     <mat-form-field [appearance]="appearance()" [subscriptSizing]="subscriptSizing()">
         <mat-label>{{ colCaption(field()) }}</mat-label>
