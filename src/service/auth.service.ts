@@ -1,8 +1,12 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'environment/environment';
 import { map, shareReplay, take, tap } from 'rxjs/operators';
-import { ApplicationData, AuthSummary, DictionaryPath, LoginResponse, RestReport, TableDefinition, UserRegistration } from 'model/appdata';
+import {
+  ApplicationData, AuthSummary, DictionaryPath, LoginResponse,
+  OtpRequest, OtpResponse, OtpVerifyRequest, OtpVerifyResponse,
+  RestReport, TableDefinition, UserRegistration, UserRole,
+} from 'model/appdata';
 import { RestURL } from './rest_url';
 import { Observable } from 'rxjs';
 import { ApplicationMenu, ConstantValue } from 'model/tripdb';
@@ -27,8 +31,13 @@ export class AuthService {
   private readonly registerUrl = environment.httphost + RestURL.registerURL;
   private readonly forgotPasswordUrl = environment.httphost + RestURL.forgotPasswordURL;
   private readonly resetPasswordUrl = environment.httphost + RestURL.resetPasswordURL;
+  private readonly otpSendUrl = environment.httphost + RestURL.otpSendURL;
+  private readonly otpVerifyUrl = environment.httphost + RestURL.otpVerifyURL;
 
   token: string | null = null;
+  readonly currentRole = signal<UserRole | null>(
+    (localStorage.getItem('role') as UserRole) || null,
+  );
 
   loadAppData() {
     this.appData$ = this.http.get<ApplicationData>(this.appdataUrl).pipe(
@@ -77,22 +86,60 @@ export class AuthService {
     return this.http.post<{ message: string }>(this.resetPasswordUrl, { token, new_password: newPassword });
   }
 
+  sendOtp(request: OtpRequest): Observable<OtpResponse> {
+    return this.http.post<OtpResponse>(this.otpSendUrl, request);
+  }
+
+  verifyOtp(request: OtpVerifyRequest, role: UserRole): Observable<OtpVerifyResponse> {
+    return this.http.post<OtpVerifyResponse>(this.otpVerifyUrl, request).pipe(
+      tap((res) => {
+        this.token = res.token;
+        localStorage.setItem('jwt', res.token);
+        this.setRole(role);
+        this.loadAppData();
+      }),
+    );
+  }
+
   loadStoredSession() {
     this.token = localStorage.getItem('jwt');
     if (this.token) {
       this.loadAppData();
-      this.initRoutes();
+      const role = this.currentRole();
+      if (role === 'admin') {
+        this.initRoutes();
+      }
     }
   }
 
   logout() {
     this.token = null;
+    this.currentRole.set(null);
     localStorage.removeItem('jwt');
     localStorage.removeItem('menu');
+    localStorage.removeItem('role');
+    this.router.navigate(['/public/rider']);
   }
 
   register(reg: UserRegistration) {
     return this.http.post<UserRegistration>(this.registerUrl, reg);
+  }
+
+  isAuthenticated(): boolean {
+    return this.token !== null;
+  }
+
+  setRole(role: UserRole) {
+    this.currentRole.set(role);
+    localStorage.setItem('role', role);
+  }
+
+  navigateToRoleHome(role: UserRole) {
+    switch (role) {
+      case 'rider': this.router.navigate(['/rider/home']); break;
+      case 'driver': this.router.navigate(['/driver/home']); break;
+      case 'admin': this.initRoutes(); break;
+    }
   }
 
   private buildAuthIndex() {

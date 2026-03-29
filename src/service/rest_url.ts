@@ -11,4 +11,7 @@ export const RestURL = {
   logoutURL: '/auth/logout',
   enable2faURL: '/auth/2fa/enable',
   verify2faURL: '/auth/2fa/verify',
+  otpSendURL: '/auth/otp/send',
+  otpVerifyURL: '/auth/otp/verify',
+  otpResendURL: '/auth/otp/resend',
 };

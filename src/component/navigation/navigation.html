@@ -4,8 +4,8 @@
         [mode]="isHandset() ? 'over' : 'side'"
         [opened]="!isHandset() && isLoggedIn">
         <mat-toolbar>
-            <img ngSrc="trip_logo.png" alt="TRIPMAN" width="32" height="32" priority>
-            <span class="logo-text">TRIPMAN</span>
+            <img ngSrc="trip_logo.png" alt="TRVOO" width="32" height="32" priority>
+            <span class="logo-text">TRVOO</span>
         </mat-toolbar>
         @if (isLoggedIn) {
             <mat-accordion>
@@ -41,8 +41,8 @@
                     <mat-icon>menu</mat-icon>
                 </button>
             }
-            <img ngSrc="trip_logo.png" alt="TRIPMAN" width="28" height="28" priority>
-            <span class="toolbar-title">TRIPMAN</span>
+            <img ngSrc="trip_logo.png" alt="TRVOO" width="28" height="28" priority>
+            <span class="toolbar-title">TRVOO</span>
             <span class="toolbar-spacer"></span>
             @if (isLoggedIn) {
                 <notification-center />

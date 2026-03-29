@@ -112,3 +112,74 @@ export interface UserRegistration {
   Locale:       string;
   Currency:     string;
 }
+
+// ── OTP Authentication ──
+
+export type UserRole = 'rider' | 'driver' | 'admin';
+
+export interface OtpRequest {
+  contact: string;
+  contactType: 'phone' | 'email';
+  purpose: 'login' | 'register';
+}
+
+export interface OtpResponse {
+  sessionId: string;
+  expiresIn: number;
+}
+
+export interface OtpVerifyRequest {
+  sessionId: string;
+  code: string;
+}
+
+export interface OtpVerifyResponse {
+  token: string;
+  isNewUser: boolean;
+}
+
+// ── Rider Registration ──
+
+export interface RiderRegistration {
+  email: string;
+  phone: string;
+  firstName?: string;
+  lastName?: string;
+  locale?: string;
+  photoUrl?: string;
+  referralCode?: string;
+}
+
+// ── Driver Registration ──
+
+export interface DriverRegistration {
+  email: string;
+  phone: string;
+  city: string;
+  firstName?: string;
+  lastName?: string;
+  locale?: string;
+  referralCode?: string;
+  vehicleManufacturer?: string;
+  vehicleYear?: number;
+  licensePlate?: string;
+  vehicleColour?: string;
+  isWav?: boolean;
+  wavFeatures?: string;
+}
+
+export interface DriverInsuranceDeclarations {
+  maintainPersonalInsurance: boolean;
+  allPerilsCoverage: boolean;
+  advisedInsurer: boolean;
+}
+
+export interface DriverBankInfo {
+  institutionNumber: string;
+  transitNumber: string;
+  accountNumber: string;
+  sin: string;
+  gstHstNumber?: string;
+  billingAddress: string;
+  airwallexAgreement: boolean;
+}

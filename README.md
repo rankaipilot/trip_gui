@@ -1,6 +1,6 @@
-# TRIPMAN Web Application
+# TRVOO Web Application
 
-Angular 21 frontend for the TRIPMAN ride-hailing platform, serving riders, drivers, and administrators.
+Angular 21 frontend for the TRVOO ride-hailing platform, serving riders, drivers, and administrators.
 
 ## Architecture
 
@@ -11,10 +11,15 @@ Angular 21 frontend for the TRIPMAN ride-hailing platform, serving riders, drive
 
 ### Key Design Patterns
 
+- **Mobile-first shell**: All rider/driver screens are constrained to 430px max-width (`MobileShell` component), giving identical appearance on web, iOS, and Android.
+- **OTP-based authentication**: Phone/email OTP login replaces passwords. A dev HTTP interceptor mocks OTP endpoints during development.
+- **Role-based routing**: Separate route trees for rider (`/rider/**`), driver (`/driver/**`), and admin (`/admin/**`) with dedicated shell components.
+- **Bottom tab navigation**: Rider and driver flows use `BottomNav` with 4 tabs each, replacing the desktop sidebar.
+- **Multi-step registration wizards**: Rider (3 steps) and driver (5 steps) registration with state persisted in `sessionStorage` via `RegistrationService`.
 - **Metadata-driven CRUD**: Backend `/api/config/appdata` serves table definitions, permissions, menus. Generic components render any entity without custom code.
 - **3-level OOP inheritance**: `BaseTable` → `BaseView`/`BaseForm` → concrete components. Eliminates CRUD boilerplate.
 - **Signal-based state**: `RideStateStore` manages ride lifecycle reactively.
-- **Dynamic routing**: `AuthService.initRoutes()` generates routes from backend menu configuration.
+- **Dynamic routing**: `AuthService.initRoutes()` generates admin routes from backend menu configuration.
 
 ## Project Structure
 
@@ -23,32 +28,51 @@ src/
   app/                  -- Root component, routes, bootstrap
   component/
     abstract/           -- BaseTable, BaseView, BaseForm
+    admin/              -- AdminShell, Dashboard, Ride monitor, Disputes, etc.
     form/               -- DynamicField, RecordForm, TableForm
     table/              -- TableList, TableEdit, TableDetail, TableSearch, TableLookup
-    navigation/         -- Sidebar + toolbar with dynamic menu
-    login/              -- Login, Register, Social login, Forgot password
-    rider/              -- Home, Booking, Tracking, History, Profile, Payments
-    driver/             -- Dashboard, Ride request, Active ride, Earnings, Vehicles
-    admin/              -- Dashboard, Ride monitor, Disputes, Surge, Feature flags
+    navigation/         -- Sidebar + toolbar for admin (legacy desktop layout)
+    login/              -- PublicScreen, Login (OTP), LoginConfirmation, Register, RegisterConfirmation
+    rider/              -- RiderShell, Home, Booking, Tracking, History, Profile, Registration wizard
+    driver/             -- DriverShell, Dashboard, Registration wizard (5 steps), Earnings, Vehicles
     report/             -- ReportSearch, ReportList
-    shared/             -- RideStateChip, StarRating, FareBreakdown, CountdownTimer
+    shared/             -- MobileShell, BottomNav, TrvooHeader, OtpInput, DocumentUpload,
+                           RideStateChip, StarRating, FareBreakdown, CountdownTimer, RideTypeCard
     dashboard/          -- User dashboard
   model/                -- appdata.ts, tripdb.ts, ride_state.ts, decorator.ts
-  service/              -- Auth, REST, Ride, Tracking, Driver, Payment, Admin, etc.
+  service/              -- Auth, REST, Ride, Tracking, Driver, Payment, Registration, etc.
   environment/          -- Dev, Test, Prod configs
   styles/               -- Material theme, global CSS
 ```
+
+## Screen Flows
+
+### Rider Flow
+1. Public Screen (`/public/rider`) → Sign in / Register
+2. Login (`/login/rider`) → Phone or Email selection → OTP code
+3. Login Confirmation (`/login/rider/confirm`) → OTP verification → Rider Home
+4. Registration: Register → OTP → Profile Setup → Payment Method → Favorite Locations → Home
+5. Main: Home (map + search) → Booking → Tracking → Ride States → Rating
+
+### Driver Flow
+1. Public Screen (`/public/driver`) → Sign in / Register
+2. Login (`/login/driver`) → Phone or Email (+ photo requirement)
+3. Registration: Register → OTP → Personal Info → Insurance → Documents (6 uploads) → Payment/Tax → Under Review
+4. Main: Home (map + online/offline toggle) → Earn More → Rides → Help
+
+### Admin Flow
+- Login → Sidebar navigation → Dynamic CRUD pages from backend metadata
 
 ## Backend API Endpoints
 
 ### Authentication (Public)
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/auth/login` | Email/password login |
+| POST | `/auth/otp/send` | Send OTP code (phone or email) |
+| POST | `/auth/otp/verify` | Verify OTP code, returns JWT |
+| POST | `/auth/login` | Email/password login (legacy) |
 | POST | `/auth/login/social` | Google/Apple social login |
 | POST | `/auth/register` | User registration |
-| POST | `/auth/password/forgot` | Forgot password |
-| POST | `/auth/password/reset` | Reset password |
 | GET | `/api/config/appdata` | Metadata (menus, permissions, tables) |
 
 ### Generic CRUD (Authenticated)
@@ -107,6 +131,57 @@ ng build --configuration test
 # Run tests
 ng test
 ```
+
+### Dev OTP Interceptor
+
+In development mode (`environment.production = false`), an HTTP interceptor (`otp_dev.interceptor.ts`) mocks OTP endpoints:
+- `POST /auth/otp/send` → returns fake `sessionId` + 120s expiry
+- `POST /auth/otp/verify` → returns fake JWT token
+
+This allows the full login/register flow to work without a backend OTP implementation. Remove the interceptor when the backend adds real OTP support.
+
+## Test & Validation Steps
+
+### Public Screens
+- [ ] Navigate to `http://localhost:4200` → redirects to `/public/rider`
+- [ ] See TRVOO-branded landing page at mobile width (430px centered)
+- [ ] Click "Sign in" → navigates to `/login/rider`
+- [ ] Click "Register" → navigates to `/register/rider`
+- [ ] Navigate to `/public/driver` → see driver-specific branding
+
+### Login Flow
+- [ ] On `/login/rider` → see phone/email selection buttons and Google/Apple social
+- [ ] On `/login/driver` → see phone/email buttons and photo note (no social login)
+- [ ] Select "Login with phone" → see phone input field
+- [ ] Enter phone and click Continue → navigate to OTP confirmation screen
+- [ ] Enter 7-digit code on numeric keypad → auto-verifies → redirects to rider/driver home
+
+### Rider Registration
+- [ ] `/register/rider` → email, phone, terms checkbox, Register button
+- [ ] OTP confirmation → profile setup (name, language, referral)
+- [ ] Payment method step (card form, Apple/Google Pay, skip)
+- [ ] Favorite locations step (home/work, skip) → rider home
+
+### Driver Registration
+- [ ] `/register/driver` → email, phone, city, consent, Register as driver
+- [ ] OTP confirmation → personal info (name, vehicle details, WAV)
+- [ ] Insurance declarations (3 checkboxes, all required)
+- [ ] Document uploads (6 documents with preview/confirm flow)
+- [ ] Payment/tax (bank details, SIN, GST/HST, billing address)
+- [ ] Under review screen → "Open the app" → driver home
+
+### Main Screens
+- [ ] Rider home: map placeholder, search bar, Home/Work quick actions, 4 bottom tabs
+- [ ] Driver home: map placeholder, status banner, online/offline toggle, 4 bottom tabs
+- [ ] Bottom tabs navigate between tab screens
+- [ ] Mobile shell constrains content to 430px with centered layout on desktop
+
+### Admin Flow
+- [ ] Navigate to `/admin` → existing sidebar navigation works
+
+### Build
+- [ ] `ng build` succeeds with no errors
+- [ ] `ng test` passes
 
 ## Deployment to Firebase
 
