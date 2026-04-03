@@ -22,7 +22,7 @@ import { MatIconModule } from '@angular/material/icon';
 
       <p class="otp-resend">
         @if (canResend()) {
-          <button mat-button color="primary" (click)="onResend()" class="resend-btn">Resend code</button>
+          <button mat-button class="primary" (click)="onResend()" class="resend-btn">Resend code</button>
         } @else {
           Resend code in {{ countdown() }}s
         }

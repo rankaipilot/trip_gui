@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, Input, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Input, input, output, ViewEncapsulation } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { BaseTable, ColumnType } from 'component/abstract/base_table';
+import { BaseTable } from 'component/abstract/base_table';
 import { ConstantValue } from 'model/tripdb';
 import { TableLookup } from 'component/table/table_lookup';
 
@@ -14,8 +14,11 @@ import { TableLookup } from 'component/table/table_lookup';
     selector: 'dynamic-field',
     templateUrl: './form_field.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
+    encapsulation: ViewEncapsulation.None,
     host: {
         '[class.field-wide]': 'isTextArea',
+        '[class.field-editable]': '!readonlyField()',
+        '[class.field-readonly]': 'readonlyField()',
     },
     imports: [
         MatButtonModule,
@@ -27,6 +30,7 @@ import { TableLookup } from 'component/table/table_lookup';
     ]
 })
 export class DynamicField extends BaseTable {
+    // @Input() required — signal input not possible due to BaseTable inheritance chain
     @Input() override tableName = '';
     readonly value = input<any>(undefined);
     readonly valueChange = output<any>();
@@ -44,20 +48,17 @@ export class DynamicField extends BaseTable {
     }
 
     get inputType() {
-        if (!this.col || !this.col.Inputtype || this.col.LookupStyle === 'S') return 'text';
-        return this.col.Inputtype;
+        if (!this.col || !this.col.InputType || this.col.LookupStyle === 'S') return 'text';
+        return this.col.InputType;
     }
 
     get isTextArea(): boolean {
         if (!this.col) return false;
-        if (this.col.Datatype === ColumnType.PG_TEXT || this.col.Datatype === ColumnType.PG_JSONB) return true;
-        if (this.col.Size > 80) return true;
-        return false;
+        return this.col.Size > 80;
     }
 
     get textAreaRows(): number {
         if (!this.col) return 3;
-        if (this.col.Datatype === ColumnType.PG_TEXT || this.col.Datatype === ColumnType.PG_JSONB) return 4;
         if (this.col.Size > 500) return 4;
         return 2;
     }
@@ -91,6 +92,10 @@ export class DynamicField extends BaseTable {
         return this.col.Step;
     }
 
+    get displayCaption(): string {
+        return this.displayValue(this.field(), this.value());
+    }
+
     onInputChange(event: any) {
         if (event && event.target) this.valueChange.emit(event.target.value);
     }
@@ -100,7 +105,7 @@ export class DynamicField extends BaseTable {
     }
 
     onCheckboxChange(event: any) {
-        if (event) this.valueChange.emit(event.checked ? '1' : '0');
+        if (event) this.valueChange.emit(event.checked);
     }
 
     updateForeignKeys(parentRecord: any) {

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal, ViewEncapsulation } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterModule, RouterOutlet } from '@angular/router';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -19,6 +19,7 @@ import { NgOptimizedImage } from '@angular/common';
   templateUrl: './navigation.html',
   styleUrls: ['./navigation.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None,
   imports: [
     MatSidenavModule,
     MatToolbarModule,
@@ -36,20 +37,29 @@ export class Navigation implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly breakpointObserver = inject(BreakpointObserver);
 
-  menuItems = signal<ApplicationMenu[]>([]);
+  private readonly allMenuItems = signal<ApplicationMenu[]>([]);
+
+  readonly menuItems = computed(() => {
+    const menus = this.allMenuItems();
+    return menus
+      .map(menu => ({
+        ...menu,
+        ApplicationMenuItems: (menu.ApplicationMenuItems ?? [])
+          .filter(item => item.ItemId && this.authService.canAccess(item.ItemId)),
+      }))
+      .filter(menu => (menu.ApplicationMenuItems?.length ?? 0) > 0);
+  });
 
   readonly isHandset = toSignal(
     this.breakpointObserver.observe(Breakpoints.Handset).pipe(map((result) => result.matches)),
     { initialValue: false },
   );
 
-  get isLoggedIn(): boolean {
-    return this.authService.token !== null;
-  }
+  readonly isLoggedIn = this.authService.isLoggedIn;
 
   ngOnInit() {
     this.authService.loadStoredSession();
-    this.authService.getMenus().subscribe((menuItems) => { this.menuItems.set(menuItems); });
+    this.authService.getMenus().subscribe((menuItems: ApplicationMenu[]) => { this.allMenuItems.set(menuItems); });
   }
 
   logout() {

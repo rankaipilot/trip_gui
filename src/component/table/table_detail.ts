@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, Input, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, Input, OnInit, ViewEncapsulation } from "@angular/core";
 import { DynamicField } from "component/form/form_field";
 import { MatButtonModule } from "@angular/material/button";
 import { BaseForm } from "component/abstract/base_form";
@@ -9,7 +9,7 @@ import { MatIconModule } from "@angular/material/icon";
 @Component({
     selector: 'table-detail',
     changeDetection: ChangeDetectionStrategy.OnPush,
-    styleUrls: ['./table_detail.css'],
+    encapsulation: ViewEncapsulation.None,
     templateUrl: './table_detail.html',
     imports: [
         DynamicField,
@@ -78,7 +78,7 @@ export class TableDetail extends BaseForm implements OnInit {
             this.openEditDialog(record, false, this.fkColumns);
         } else {
             this.editingRecord = record;
-            this.isNew = record['siud_op'] === 'I';
+            this.isNew = record[this.opField] === 'I';
             this.originalRecord = {...record};
             this.formatRecordTimeStamp(record);
         }
@@ -106,19 +106,19 @@ export class TableDetail extends BaseForm implements OnInit {
     }
 
     deleteRow(record: any) {
-        if (record['siud_op'] === 'I') {
+        if (record[this.opField] === 'I') {
             const index = this.records.indexOf(record);
             if (index > -1) {
                 this.records.splice(index, 1);
             }
         } else {
-            record['siud_op'] = 'D';
+            record[this.opField] = 'D';
         }
     }
 
     unDeleteRow(record: any) {
-        if (record['siud_op'] === 'D') {
-            record['siud_op'] = 'U';
+        if (record[this.opField] === 'D') {
+            record[this.opField] = 'U';
         }
     }
 }

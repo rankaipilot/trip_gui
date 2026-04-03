@@ -22,15 +22,15 @@ import { RideStateChip } from 'component/shared/ride_state_chip';
                     @switch (rideStore.rideState()) {
                         @case ('E') {
                             <p>Navigating to pickup...</p>
-                            <button mat-raised-button color="primary">Arrived at Pickup</button>
+                            <button mat-raised-button class="primary">Arrived at Pickup</button>
                         }
                         @case ('A') {
                             <p>Waiting for rider...</p>
-                            <button mat-raised-button color="primary">Start Trip</button>
+                            <button mat-raised-button class="primary">Start Trip</button>
                         }
                         @case ('I') {
                             <p>Trip in progress</p>
-                            <button mat-raised-button color="primary">Complete Trip</button>
+                            <button mat-raised-button class="primary">Complete Trip</button>
                         }
                     }
                 </mat-card-content>

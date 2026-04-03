@@ -29,7 +29,7 @@ import { MatInputModule } from '@angular/material/input';
                         <mat-label>Email</mat-label>
                         <input matInput formControlName="email" type="email">
                     </mat-form-field>
-                    <button mat-raised-button color="primary" type="submit" class="full-width" [disabled]="form.invalid">
+                    <button mat-raised-button class="primary" type="submit" class="full-width" [disabled]="form.invalid">
                         Send Reset Link
                     </button>
                 </form>

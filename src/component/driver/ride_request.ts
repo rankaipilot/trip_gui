@@ -18,7 +18,7 @@ import { CurrencyPipe } from '@angular/common';
                 <countdown-timer [seconds]="15" (onExpire)="decline.emit()" />
             </mat-card-content>
             <mat-card-actions>
-                <button mat-raised-button color="primary" (click)="accept.emit()">Accept</button>
+                <button mat-raised-button class="primary" (click)="accept.emit()">Accept</button>
                 <button mat-button (click)="decline.emit()">Decline</button>
             </mat-card-actions>
         </mat-card>

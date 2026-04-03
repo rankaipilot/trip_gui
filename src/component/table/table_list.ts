@@ -1,21 +1,22 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, Input, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnDestroy, OnInit, ViewEncapsulation } from "@angular/core";
 import { ActivatedRoute, Params } from "@angular/router";
 import { BaseView } from "component/abstract/base_view";
 import { TableEdit } from "./table_edit";
 import { BackendService } from "service/rest_service";
+import { MatButtonModule } from "@angular/material/button";
 import { MatCheckboxModule } from "@angular/material/checkbox";
+import { MatIconModule } from "@angular/material/icon";
 import { Subscription } from "rxjs";
 
 @Component({
     selector: 'table-list',
     templateUrl: './table_list.html',
-    styleUrls: ['./table_list.css'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [MatCheckboxModule],
+    encapsulation: ViewEncapsulation.None,
+    imports: [MatButtonModule, MatCheckboxModule, MatIconModule],
 })
 export class TableList extends BaseView implements OnInit, OnDestroy {
     override dialogWidth = '400px';
-    @Input() apiName = '';
 
     private readonly route = inject(ActivatedRoute);
     private readonly backendService = inject(BackendService);

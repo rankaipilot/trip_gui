@@ -1,14 +1,14 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'environment/environment';
-import { map, shareReplay, take, tap } from 'rxjs/operators';
+import { map, take, tap } from 'rxjs/operators';
 import {
   ApplicationData, AuthSummary, DictionaryPath, LoginResponse,
   OtpRequest, OtpResponse, OtpVerifyRequest, OtpVerifyResponse,
   RestReport, TableDefinition, UserRegistration, UserRole,
 } from 'model/appdata';
 import { RestURL } from './rest_url';
-import { Observable } from 'rxjs';
+import { Observable, ReplaySubject } from 'rxjs';
 import { ApplicationMenu, ConstantValue } from 'model/tripdb';
 import { ActivatedRouteSnapshot, GuardResult, MaybeAsync, Router, RouterStateSnapshot, Routes } from '@angular/router';
 import { TableSearch } from 'component/table/table_search';
@@ -23,7 +23,7 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
   private cache!: ApplicationData;
-  private appData$: Observable<ApplicationData> = new Observable<ApplicationData>();
+  private readonly appData$ = new ReplaySubject<ApplicationData>(1);
   private readonly authIndex = new Map<string, AuthSummary[]>();
   private readonly appdataUrl = environment.httphost + RestURL.appdataURL;
   private readonly loginUrl = environment.httphost + RestURL.loginURL;
@@ -34,26 +34,28 @@ export class AuthService {
   private readonly otpSendUrl = environment.httphost + RestURL.otpSendURL;
   private readonly otpVerifyUrl = environment.httphost + RestURL.otpVerifyURL;
 
+  private readonly opField = 'op_code';
+
   token: string | null = null;
+  readonly isLoggedIn = signal(false);
   readonly currentRole = signal<UserRole | null>(
     (localStorage.getItem('role') as UserRole) || null,
   );
 
   loadAppData() {
-    this.appData$ = this.http.get<ApplicationData>(this.appdataUrl).pipe(
+    this.http.get<ApplicationData>(this.appdataUrl).pipe(
         tap((data) => {
             this.cache = data;
             this.buildAuthIndex();
         }),
-        shareReplay(1),
-    );
-    this.appData$.subscribe();
+    ).subscribe((data: ApplicationData) => this.appData$.next(data));
   }
 
   login(username: string, password: string) {
     this.http.post<LoginResponse>(this.loginUrl, { username, password }).subscribe({
         next: (res) => {
             this.token = res.token;
+            this.isLoggedIn.set(true);
             localStorage.setItem('jwt', res.token);
             this.loadAppData();
             this.initRoutes();
@@ -68,6 +70,7 @@ export class AuthService {
     this.http.post<LoginResponse>(this.loginSocialUrl, { provider, id_token: idToken }).subscribe({
         next: (res) => {
             this.token = res.token;
+            this.isLoggedIn.set(true);
             localStorage.setItem('jwt', res.token);
             this.loadAppData();
             this.initRoutes();
@@ -94,6 +97,7 @@ export class AuthService {
     return this.http.post<OtpVerifyResponse>(this.otpVerifyUrl, request).pipe(
       tap((res) => {
         this.token = res.token;
+        this.isLoggedIn.set(true);
         localStorage.setItem('jwt', res.token);
         this.setRole(role);
         this.loadAppData();
@@ -104,6 +108,7 @@ export class AuthService {
   loadStoredSession() {
     this.token = localStorage.getItem('jwt');
     if (this.token) {
+      this.isLoggedIn.set(true);
       this.loadAppData();
       const role = this.currentRole();
       if (role === 'admin') {
@@ -114,6 +119,7 @@ export class AuthService {
 
   logout() {
     this.token = null;
+    this.isLoggedIn.set(false);
     this.currentRole.set(null);
     localStorage.removeItem('jwt');
     localStorage.removeItem('menu');
@@ -184,7 +190,7 @@ export class AuthService {
   }
 
   getAppData(): Observable<ApplicationData> {
-    return this.appData$;
+    return this.appData$.asObservable();
   }
 
   getDomainValues(domainName: string): ConstantValue[] | undefined {
@@ -196,12 +202,25 @@ export class AuthService {
         ConstantId: domainName,
         Value: key,
         Caption: domainMap[key],
-        siud_op: 'S',
-    } as ConstantValue));
+        [this.opField]: 'S',
+    } as unknown as ConstantValue));
+  }
+
+  getTableValues(tableName: string): ConstantValue[] | undefined {
+    if (!this.cache || !this.cache.TableCache || !this.cache.TableCache[tableName]) {
+        return undefined;
+    }
+    const tableMap = this.cache.TableCache[tableName];
+    return Object.keys(tableMap).map((key) => ({
+        ConstantId: tableName,
+        Value: key,
+        Caption: tableMap[key],
+        [this.opField]: 'S',
+    } as unknown as ConstantValue));
   }
 
   getMenus(): Observable<ApplicationMenu[]> {
-    return this.appData$.pipe(map((data) => data?.MainMenu ?? []));
+    return this.appData$.pipe(map((data: ApplicationData) => data?.MainMenu ?? []));
   }
 
   getTableDefinition(tableName: string): TableDefinition | undefined {
@@ -237,6 +256,10 @@ export class AuthService {
         const path = next.routeConfig?.path;
         if (!path) return true;
         const allowed = this.canAccess(path.split('/')[0]);
+        if (!allowed) {
+          console.warn(`[canActivate] access denied for: ${path}`);
+          this.router.navigate(['/dashboard']);
+        }
         return allowed;
       }),
     );
@@ -260,26 +283,24 @@ export class AuthService {
                 const children: Routes = [];
 
                 for (const page of menu.ApplicationMenuItems) {
-                    if (!page.RestUri || !page.ItemId) continue;
-                    const restUri = page.RestUri;
-                    if (!apis || !apis[restUri] || !apis[restUri].Table) continue;
-
-                    const api = apis[restUri];
-                    const apiName = api.Version ? api.Version + '/' + restUri : restUri;
-                    const tableName = api.Table.TableName;
+                    if (!page.ItemId) continue;
+                    const restUri = page.RestUri ?? '';
+                    const api = apis?.[restUri];
+                    const apiName = api?.Version ? api.Version + '/' + restUri : restUri;
+                    const tableName = api?.Table?.TableName ?? restUri;
 
                     if (page.FilterOnList) {
                         children.push({
                             path: page.ItemId,
                             component: TableSearch,
-                            canActivate: [(next, state) => this.canActivate(next, state)],
+                            canActivate: [(next: ActivatedRouteSnapshot, state: RouterStateSnapshot) => this.canActivate(next, state)],
                             data: { tableName, apiName },
                         });
                     } else {
                         children.push({
                             path: page.ItemId,
                             component: TableSearch,
-                            canActivate: [(next, state) => this.canActivate(next, state)],
+                            canActivate: [(next: ActivatedRouteSnapshot, state: RouterStateSnapshot) => this.canActivate(next, state)],
                             data: {
                                 tableName,
                                 apiName,
@@ -289,7 +310,7 @@ export class AuthService {
                         children.push({
                             path: page.ItemId + '/list',
                             component: TableList,
-                            canActivate: [(next, state) => this.canActivate(next, state)],
+                            canActivate: [(next: ActivatedRouteSnapshot, state: RouterStateSnapshot) => this.canActivate(next, state)],
                             data: { tableName, apiName },
                         });
                     }
@@ -313,6 +334,7 @@ export class AuthService {
                 });
             }
 
+            newRoutes.push({ path: '**', redirectTo: 'dashboard' });
             this.router.resetConfig(newRoutes);
             this.router.navigate(['/dashboard']);
         },

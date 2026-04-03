@@ -12,7 +12,7 @@ import { PaymentMethod } from 'model/tripdb';
     template: `
         <div class="page-container">
             <h2>Payment Methods</h2>
-            <button mat-raised-button color="accent" style="margin-bottom:16px;">
+            <button mat-raised-button class="accent" style="margin-bottom:16px;">
                 <mat-icon>add</mat-icon> Add Payment Method
             </button>
             @for (method of methods(); track method.PaymentMethodId) {

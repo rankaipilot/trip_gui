@@ -37,25 +37,27 @@ export interface ApplicationData {
     TableDefinitions: {[key: string]: TableDefinition};
     Apis: {[key: string]: DictionaryPath};
     Reports: RestReport[];
+    [key: string]: unknown;
 }
 
 export interface TableColumn {
   ColumnName:   string;
   PascalName:   string;
   Caption:      string;
-  Datatype:     number;
-  Inputtype:    'text' | 'password' | 'number' | 'date' | 'datetime' | 'datetime-local' | 'textarea' | 'select' | 'checkbox';
+  DataType:     string;
+  InputType:    'text' | 'password' | 'number' | 'date' | 'datetime' | 'datetime-local' | 'textarea' | 'select' | 'checkbox';
   Size:         number;
   Scale:        number;
   Step:         string;
   Order:        number;
   Required:     boolean;
-  Translated:   boolean;
   IsKey:        boolean;
   SequenceName: string;
   LookupDomain: string;
   LookupTable:  string;
   LookupStyle:  string;
+  HasDefault:   boolean;
+  DefaultValue: string;
   Validators?:  AbstractControlOptions['validators'];
 }
 

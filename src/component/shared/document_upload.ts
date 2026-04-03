@@ -31,7 +31,7 @@ import { MatIconModule } from '@angular/material/icon';
         </div>
 
         <div class="doc-actions">
-          <button mat-flat-button color="primary" (click)="onConfirm()"
+          <button mat-flat-button class="primary" (click)="onConfirm()"
                   [disabled]="!allChecked()">Confirm</button>
           <button mat-stroked-button (click)="onUploadAgain()">Upload again</button>
         </div>

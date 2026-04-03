@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, Input, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, Input, OnInit, ViewEncapsulation } from "@angular/core";
 import { BaseForm } from "component/abstract/base_form";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { MatTabsModule } from "@angular/material/tabs";
@@ -10,8 +10,8 @@ import { MatButtonModule } from "@angular/material/button";
 @Component({
     selector: 'table-edit',
     templateUrl: './table_edit.html',
-    styleUrls: ['./table_edit.css'],
     changeDetection: ChangeDetectionStrategy.OnPush,
+    encapsulation: ViewEncapsulation.None,
     imports: [
         RecordForm,
         MatButtonModule,
@@ -60,11 +60,8 @@ export class TableEdit extends BaseForm implements OnInit {
             if (this.isArray(this.editableRecord[field])) {
                 this.tabCount++;
                 this.tabFields.push(field);
-                const childTable = this.getTableName(field);
-                console.log('[buildTabs] array field:', field, 'childTable:', childTable, 'canRead:', this.cacheService.canRead(childTable));
             }
         }
-        console.log('[buildTabs] tabCount:', this.tabCount, 'tabFields:', this.tabFields);
     }
 
     private fetchFullRecord() {
@@ -102,12 +99,14 @@ export class TableEdit extends BaseForm implements OnInit {
     onEdit() {
         this.isReadOnlyMode = false;
         this.isNew = false;
+        this.isReadOnlyBound = this.isReadOnly.bind(this);
     }
 
     onNew() {
         this.isReadOnlyMode = false;
         this.isNew = true;
         this.editableRecord = this.emptyRecord();
+        this.isReadOnlyBound = this.isReadOnly.bind(this);
     }
 
     onSave() {
@@ -121,6 +120,8 @@ export class TableEdit extends BaseForm implements OnInit {
                 next: () => {
                     this.isReadOnlyMode = true;
                     this.isNew = false;
+                    this.isReadOnlyBound = this.isReadOnly.bind(this);
+                    this.cdr.markForCheck();
                 },
                 error: (err) => console.error('Save failed', err),
             });
@@ -130,10 +131,12 @@ export class TableEdit extends BaseForm implements OnInit {
     onDelete() {
         if (confirm('Are you sure you want to delete this record?')) {
             const result = {...this.editableRecord};
-            result['siud_op'] = 'D';
+            result[this.opField] = 'D';
             this.backendService.post(this.apiName, result).subscribe({
                 next: () => {
                     this.isReadOnlyMode = true;
+                    this.isReadOnlyBound = this.isReadOnly.bind(this);
+                    this.cdr.markForCheck();
                 },
                 error: (err) => console.error('Delete failed', err),
             });
@@ -148,5 +151,6 @@ export class TableEdit extends BaseForm implements OnInit {
         this.isReadOnlyMode = true;
         this.editableRecord = {...this.record};
         this.isNew = false;
+        this.isReadOnlyBound = this.isReadOnly.bind(this);
     }
 }

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, ViewEncapsulation } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { BaseForm } from 'component/abstract/base_form';
 import { RecordForm } from './form_record';
@@ -15,6 +15,7 @@ interface TableFormDialogData {
 @Component({
     selector: 'table-form',
     changeDetection: ChangeDetectionStrategy.OnPush,
+    encapsulation: ViewEncapsulation.None,
     templateUrl: './form_table.html',
     imports: [
         MatButtonModule,
@@ -40,7 +41,7 @@ export class TableForm extends BaseForm implements OnInit {
 
     override isReadOnly(fieldName: string): boolean {
         if (this.readOnlyColumns.includes(fieldName)) return true;
-        return false;
+        return super.isReadOnly(fieldName);
     }
 
     onSave(): void {

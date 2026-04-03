@@ -12,7 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
             <h2>Favorite Locations</h2>
             <mat-card style="margin-bottom:8px;"><mat-card-content><mat-icon>home</mat-icon> Home — Not set</mat-card-content></mat-card>
             <mat-card style="margin-bottom:8px;"><mat-card-content><mat-icon>work</mat-icon> Work — Not set</mat-card-content></mat-card>
-            <button mat-raised-button color="accent" style="margin-top:16px;"><mat-icon>add</mat-icon> Add Location</button>
+            <button mat-raised-button class="accent" style="margin-top:16px;"><mat-icon>add</mat-icon> Add Location</button>
         </div>
     `,
 })

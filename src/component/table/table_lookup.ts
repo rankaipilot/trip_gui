@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnInit, ViewEncapsulation } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from "@angular/material/dialog";
 import { MatIconModule } from "@angular/material/icon";
@@ -9,8 +9,8 @@ import { BackendService } from "service/rest_service";
 @Component({
     selector: 'table-lookup',
     templateUrl: './table_lookup.html',
-    styleUrls: ['./table_lookup.css'],
     changeDetection: ChangeDetectionStrategy.OnPush,
+    encapsulation: ViewEncapsulation.None,
     imports: [
         MatButtonModule,
         MatDialogModule,
@@ -19,7 +19,7 @@ import { BackendService } from "service/rest_service";
     ],
 })
 export class TableLookup extends BaseView implements OnInit {
-    apiName = '';
+    override apiName = '';
     searchRecord: any = {};
     searchColumns: string[] = [];
 

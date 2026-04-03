@@ -13,7 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
             <mat-card style="margin-bottom:16px;">
                 <mat-card-content>
                     <h3>Documents</h3>
-                    <button mat-raised-button color="accent"><mat-icon>upload</mat-icon> Upload Document</button>
+                    <button mat-raised-button class="accent"><mat-icon>upload</mat-icon> Upload Document</button>
                 </mat-card-content>
             </mat-card>
             <mat-card>

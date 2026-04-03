@@ -10,7 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
     template: `
         <div class="page-container">
             <h2>Scheduled Rides</h2>
-            <button mat-raised-button color="accent"><mat-icon>add</mat-icon> Schedule a Ride</button>
+            <button mat-raised-button class="accent"><mat-icon>add</mat-icon> Schedule a Ride</button>
             <p class="status-text" style="margin-top:24px;">No scheduled rides.</p>
         </div>
     `,

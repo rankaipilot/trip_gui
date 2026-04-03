@@ -12,7 +12,7 @@ import { Vehicle } from 'model/tripdb';
     template: `
         <div class="page-container">
             <h2>Vehicles</h2>
-            <button mat-raised-button color="accent" style="margin-bottom:16px;"><mat-icon>add</mat-icon> Add Vehicle</button>
+            <button mat-raised-button class="accent" style="margin-bottom:16px;"><mat-icon>add</mat-icon> Add Vehicle</button>
             @for (v of vehicles(); track v.VehicleId) {
                 <mat-card style="margin-bottom:8px;">
                     <mat-card-content>

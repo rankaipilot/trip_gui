@@ -6,6 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 export abstract class BaseView extends BaseTable {
     protected readonly dialog = inject(MatDialog);
     @Input() override tableName = '';
+    @Input() apiName = '';
     @Input() dialogComponent: any;
     records: Array<{[key: string]: any}> = [];
     displayedColumns: string[] = [];
@@ -31,7 +32,7 @@ export abstract class BaseView extends BaseTable {
 
     trackByRecord(index: number, record: {[key: string]: any}): any {
         const tableDef = this.cacheService.getTableDefinition(this.tableName);
-        if (!tableDef || !tableDef.Keys || tableDef.Keys.length == 0) return index;
+        if (!tableDef || !tableDef.Keys || tableDef.Keys.length === 0) return index;
         return tableDef.Keys.map((key) => record[key.PascalName]).join('_');
     }
 
@@ -49,7 +50,9 @@ export abstract class BaseView extends BaseTable {
         }
 
         const dialogRef = this.dialog.open(this.dialogComponent, {
-            width: this.dialogWidth,
+            width: '90vw',
+            maxWidth: '1200px',
+            maxHeight: '90vh',
             data: this.getDialogData(record, true),
         });
 
@@ -64,11 +67,13 @@ export abstract class BaseView extends BaseTable {
             return;
         }
         const dialogData = this.getDialogData(record, false);
-        if ((this as any).apiName) {
-            dialogData['apiName'] = (this as any).apiName;
+        if (this.apiName) {
+            dialogData['apiName'] = this.apiName;
         }
         const dialogRef = this.dialog.open(this.dialogComponent, {
-            width: this.dialogWidth,
+            width: '90vw',
+            maxWidth: '1200px',
+            maxHeight: '90vh',
             data: dialogData,
         });
         dialogRef.afterClosed().subscribe((result) => {

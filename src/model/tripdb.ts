@@ -1,5 +1,5 @@
 export class SiudAction {
-  siud_op = 'S';
+  op_code = 'S';
 }
 
 export class ApplicationMenu extends SiudAction {

@@ -16,11 +16,11 @@
             }
 
             @if (rideStore.canCancel()) {
-                <button mat-raised-button color="warn" style="margin-top:12px;">Cancel Ride</button>
+                <button mat-raised-button class="warn" style="margin-top:12px;">Cancel Ride</button>
             }
 
             @if (rideStore.showSOS()) {
-                <button mat-raised-button color="warn" style="margin-top:12px;" aria-label="Emergency SOS">
+                <button mat-raised-button class="warn" style="margin-top:12px;" aria-label="Emergency SOS">
                     <mat-icon>emergency</mat-icon> SOS
                 </button>
             }
