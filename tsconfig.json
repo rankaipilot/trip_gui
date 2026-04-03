@@ -3,9 +3,10 @@
   "compilerOptions": {
     "baseUrl": "src",
     "paths": {
-      "abstract/*": ["component/abstract/*"],
+      "@aspect/gui": ["../node_modules/@aspect/gui/src/index"],
       "app/*": ["app/*"],
       "environment/*": ["environment/*"],
+      "component/*": ["component/*"],
       "model/*": ["model/*"],
       "service/*": ["service/*"]
     },

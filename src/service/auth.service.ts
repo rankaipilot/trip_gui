@@ -1,73 +1,44 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from 'environment/environment';
-import { map, take, tap } from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
+import { BaseAuthService, configureRestUrls } from '@aspect/gui';
 import {
-  ApplicationData, AuthSummary, DictionaryPath, LoginResponse,
+  ApplicationData, LoginResponse,
   OtpRequest, OtpResponse, OtpVerifyRequest, OtpVerifyResponse,
-  RestReport, TableDefinition, UserRegistration, UserRole,
+  RestReport, UserRegistration, UserRole,
 } from 'model/appdata';
 import { RestURL } from './rest_url';
-import { Observable, ReplaySubject } from 'rxjs';
-import { ApplicationMenu, ConstantValue } from 'model/tripdb';
-import { ActivatedRouteSnapshot, GuardResult, MaybeAsync, Router, RouterStateSnapshot, Routes } from '@angular/router';
-import { TableSearch } from 'component/table/table_search';
-import { TableList } from 'component/table/table_list';
+import { Observable } from 'rxjs';
+import { Routes } from '@angular/router';
 import { ReportSearch } from 'component/report/report_search';
 import { ReportList } from 'component/report/report_list';
 import { DashUser } from 'component/dashboard/dash_user';
 import { PublicRoutes } from 'app/app.routes';
+import { environment } from 'environment/environment';
+
+// Configure basui REST URLs with trip_gui's endpoints
+configureRestUrls(environment.httphost, {
+  loginURL: RestURL.loginURL,
+  registerURL: RestURL.registerURL,
+});
 
 @Injectable({ providedIn: 'root' })
-export class AuthService {
-  private readonly http = inject(HttpClient);
-  private readonly router = inject(Router);
-  private cache!: ApplicationData;
-  private readonly appData$ = new ReplaySubject<ApplicationData>(1);
-  private readonly authIndex = new Map<string, AuthSummary[]>();
-  private readonly appdataUrl = environment.httphost + RestURL.appdataURL;
-  private readonly loginUrl = environment.httphost + RestURL.loginURL;
+export class AuthService extends BaseAuthService {
+  private readonly tripHttp = inject(HttpClient);
   private readonly loginSocialUrl = environment.httphost + RestURL.loginSocialURL;
-  private readonly registerUrl = environment.httphost + RestURL.registerURL;
   private readonly forgotPasswordUrl = environment.httphost + RestURL.forgotPasswordURL;
   private readonly resetPasswordUrl = environment.httphost + RestURL.resetPasswordURL;
   private readonly otpSendUrl = environment.httphost + RestURL.otpSendURL;
   private readonly otpVerifyUrl = environment.httphost + RestURL.otpVerifyURL;
 
-  private readonly opField = 'op_code';
-
-  token: string | null = null;
-  readonly isLoggedIn = signal(false);
   readonly currentRole = signal<UserRole | null>(
     (localStorage.getItem('role') as UserRole) || null,
   );
 
-  loadAppData() {
-    this.http.get<ApplicationData>(this.appdataUrl).pipe(
-        tap((data) => {
-            this.cache = data;
-            this.buildAuthIndex();
-        }),
-    ).subscribe((data: ApplicationData) => this.appData$.next(data));
-  }
-
-  login(username: string, password: string) {
-    this.http.post<LoginResponse>(this.loginUrl, { username, password }).subscribe({
-        next: (res) => {
-            this.token = res.token;
-            this.isLoggedIn.set(true);
-            localStorage.setItem('jwt', res.token);
-            this.loadAppData();
-            this.initRoutes();
-        },
-        error: (err) => {
-            console.error('Login failed:', err);
-        },
-    });
-  }
+  // ── Trip-specific auth methods ──
 
   loginSocial(provider: string, idToken: string) {
-    this.http.post<LoginResponse>(this.loginSocialUrl, { provider, id_token: idToken }).subscribe({
+    this.tripHttp.post<LoginResponse>(this.loginSocialUrl, { provider, id_token: idToken }).subscribe({
         next: (res) => {
             this.token = res.token;
             this.isLoggedIn.set(true);
@@ -81,20 +52,20 @@ export class AuthService {
     });
   }
 
-  forgotPassword(email: string) {
-    return this.http.post<{ message: string }>(this.forgotPasswordUrl, { email });
+  override forgotPassword(email: string) {
+    return this.tripHttp.post<{ message: string }>(this.forgotPasswordUrl, { email });
   }
 
-  resetPassword(token: string, newPassword: string) {
-    return this.http.post<{ message: string }>(this.resetPasswordUrl, { token, new_password: newPassword });
+  resetPassword(resetToken: string, newPassword: string) {
+    return this.tripHttp.post<{ message: string }>(this.resetPasswordUrl, { token: resetToken, new_password: newPassword });
   }
 
   sendOtp(request: OtpRequest): Observable<OtpResponse> {
-    return this.http.post<OtpResponse>(this.otpSendUrl, request);
+    return this.tripHttp.post<OtpResponse>(this.otpSendUrl, request);
   }
 
   verifyOtp(request: OtpVerifyRequest, role: UserRole): Observable<OtpVerifyResponse> {
-    return this.http.post<OtpVerifyResponse>(this.otpVerifyUrl, request).pipe(
+    return this.tripHttp.post<OtpVerifyResponse>(this.otpVerifyUrl, request).pipe(
       tap((res) => {
         this.token = res.token;
         this.isLoggedIn.set(true);
@@ -105,7 +76,7 @@ export class AuthService {
     );
   }
 
-  loadStoredSession() {
+  override loadStoredSession() {
     this.token = localStorage.getItem('jwt');
     if (this.token) {
       this.isLoggedIn.set(true);
@@ -117,18 +88,15 @@ export class AuthService {
     }
   }
 
-  logout() {
-    this.token = null;
-    this.isLoggedIn.set(false);
+  override logout() {
+    super.logout();
     this.currentRole.set(null);
-    localStorage.removeItem('jwt');
-    localStorage.removeItem('menu');
     localStorage.removeItem('role');
     this.router.navigate(['/public/rider']);
   }
 
-  register(reg: UserRegistration) {
-    return this.http.post<UserRegistration>(this.registerUrl, reg);
+  registerUser(reg: UserRegistration) {
+    return this.tripHttp.post<UserRegistration>(environment.httphost + RestURL.registerURL, reg);
   }
 
   isAuthenticated(): boolean {
@@ -148,199 +116,36 @@ export class AuthService {
     }
   }
 
-  private buildAuthIndex() {
-    this.authIndex.clear();
-    for (const auth of this.cache.Permissions) {
-        const obj = auth.AuthorizationObjectId ?? (auth as any).ObjectName;
-        const act = auth.Action;
-        const low = auth.LowLimit ?? (auth as any).Low;
-        if (!obj || !act || !low) continue;
-        const key = obj + '|' + act;
-        if (!this.authIndex.has(key)) {
-            this.authIndex.set(key, []);
-        }
-        const reg = low
-            .replace(/[.+^${}()|[\]\\]/g, '\\$&')
-            .replace(/\\\*/g, '.*')
-            .replace(/\\\?/g, '.');
-        this.authIndex.get(key)!.push({
-            Obj: obj,
-            Act: act,
-            Val: low,
-            Reg: reg,
-        } as AuthSummary);
-    }
-  }
-
-  private checkPermission(authorityObjectId: string, activity: string, value: string): boolean {
-    if (!this.cache || !this.cache.Permissions) {
-        return false;
-    }
-    const key = authorityObjectId + '|' + activity;
-    const auths = this.authIndex.get(key);
-    if (!auths) {
-        return false;
-    }
-    for (const auth of auths) {
-        if (new RegExp(`^${auth.Reg}$`).test(value)) {
-            return true;
-        }
-    }
-    return false;
-  }
-
-  getAppData(): Observable<ApplicationData> {
-    return this.appData$.asObservable();
-  }
-
-  getDomainValues(domainName: string): ConstantValue[] | undefined {
-    if (!this.cache || !this.cache.ConstantCache || !this.cache.ConstantCache[domainName]) {
-        return undefined;
-    }
-    const domainMap = this.cache.ConstantCache[domainName];
-    return Object.keys(domainMap).map((key) => ({
-        ConstantId: domainName,
-        Value: key,
-        Caption: domainMap[key],
-        [this.opField]: 'S',
-    } as unknown as ConstantValue));
-  }
-
-  getTableValues(tableName: string): ConstantValue[] | undefined {
-    if (!this.cache || !this.cache.TableCache || !this.cache.TableCache[tableName]) {
-        return undefined;
-    }
-    const tableMap = this.cache.TableCache[tableName];
-    return Object.keys(tableMap).map((key) => ({
-        ConstantId: tableName,
-        Value: key,
-        Caption: tableMap[key],
-        [this.opField]: 'S',
-    } as unknown as ConstantValue));
-  }
-
-  getMenus(): Observable<ApplicationMenu[]> {
-    return this.appData$.pipe(map((data: ApplicationData) => data?.MainMenu ?? []));
-  }
-
-  getTableDefinition(tableName: string): TableDefinition | undefined {
-    if (!this.cache || !this.cache.TableDefinitions) {
-      return undefined;
-    }
-    return this.cache.TableDefinitions[tableName];
-  }
-
-  getApiDictionary(dictionaryId: string): DictionaryPath | undefined {
-    if (!this.cache || !this.cache.Apis) {
-      return undefined;
-    }
-    return this.cache.Apis[dictionaryId];
-  }
-
   getReports(): RestReport[] {
-    if (!this.cache || !this.cache.Reports) {
+    if (!this.cache || !(this.cache as ApplicationData).Reports) {
       return [];
     }
-    return this.cache.Reports;
+    return (this.cache as ApplicationData).Reports;
   }
 
-  canRead(tableName: string)   { return this.checkPermission('TABLE', 'SELECT', tableName); }
-  canCreate(tableName: string) { return this.checkPermission('TABLE', 'INSERT', tableName); }
-  canUpdate(tableName: string) { return this.checkPermission('TABLE', 'UPDATE', tableName); }
-  canDelete(tableName: string) { return this.checkPermission('TABLE', 'DELETE', tableName); }
-  canAccess(pageName: string)  { return this.checkPermission('PAGE', 'ACCESS', pageName); }
+  // ── Override route building to add reports and trip-specific routes ──
 
-  canActivate(next: ActivatedRouteSnapshot, _state: RouterStateSnapshot): MaybeAsync<GuardResult> {
-    return this.getAppData().pipe(
-      map(() => {
-        const path = next.routeConfig?.path;
-        if (!path) return true;
-        const allowed = this.canAccess(path.split('/')[0]);
-        if (!allowed) {
-          console.warn(`[canActivate] access denied for: ${path}`);
-          this.router.navigate(['/dashboard']);
-        }
-        return allowed;
-      }),
-    );
-  }
+  protected override buildExtraRoutes(data: import('@aspect/gui').ApplicationData): Routes {
+    const extraRoutes: Routes = [
+      ...PublicRoutes,
+      { path: 'dashboard', component: DashUser },
+    ];
 
-  initRoutes() {
-    this.getAppData().pipe(take(1)).subscribe({
-        next: (data: ApplicationData) => {
-            const menus = data.MainMenu ?? [];
-            const apis  = data.Apis;
+    const reports = (data as ApplicationData).Reports ?? [];
+    for (const report of reports) {
+      if (!report.Id) continue;
+      extraRoutes.push({
+        path: 'report/' + report.Id,
+        component: ReportSearch,
+        data: { report },
+      });
+      extraRoutes.push({
+        path: 'report/' + report.Id + '/list',
+        component: ReportList,
+        data: { report },
+      });
+    }
 
-            const newRoutes: Routes = [
-                { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-                ...PublicRoutes,
-                { path: 'dashboard', component: DashUser },
-            ];
-
-            for (const menu of menus) {
-                if (!menu.Id || !menu.ApplicationMenuItems) continue;
-                const menuPath = menu.Id.toLowerCase();
-                const children: Routes = [];
-
-                for (const page of menu.ApplicationMenuItems) {
-                    if (!page.ItemId) continue;
-                    const restUri = page.RestUri ?? '';
-                    const api = apis?.[restUri];
-                    const apiName = api?.Version ? api.Version + '/' + restUri : restUri;
-                    const tableName = api?.Table?.TableName ?? restUri;
-
-                    if (page.FilterOnList) {
-                        children.push({
-                            path: page.ItemId,
-                            component: TableSearch,
-                            canActivate: [(next: ActivatedRouteSnapshot, state: RouterStateSnapshot) => this.canActivate(next, state)],
-                            data: { tableName, apiName },
-                        });
-                    } else {
-                        children.push({
-                            path: page.ItemId,
-                            component: TableSearch,
-                            canActivate: [(next: ActivatedRouteSnapshot, state: RouterStateSnapshot) => this.canActivate(next, state)],
-                            data: {
-                                tableName,
-                                apiName,
-                                targetRoute: menuPath + '/' + page.ItemId + '/list',
-                            },
-                        });
-                        children.push({
-                            path: page.ItemId + '/list',
-                            component: TableList,
-                            canActivate: [(next: ActivatedRouteSnapshot, state: RouterStateSnapshot) => this.canActivate(next, state)],
-                            data: { tableName, apiName },
-                        });
-                    }
-                }
-
-                newRoutes.push({ path: menuPath, children });
-            }
-
-            const reports = data.Reports ?? [];
-            for (const report of reports) {
-                if (!report.Id) continue;
-                newRoutes.push({
-                    path: 'report/' + report.Id,
-                    component: ReportSearch,
-                    data: { report },
-                });
-                newRoutes.push({
-                    path: 'report/' + report.Id + '/list',
-                    component: ReportList,
-                    data: { report },
-                });
-            }
-
-            newRoutes.push({ path: '**', redirectTo: 'dashboard' });
-            this.router.resetConfig(newRoutes);
-            this.router.navigate(['/dashboard']);
-        },
-        error: (err) => {
-            console.error('initRoutes failed:', err);
-        },
-    });
+    return extraRoutes;
   }
 }

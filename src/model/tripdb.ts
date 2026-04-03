@@ -1,51 +1,9 @@
-export class SiudAction {
-  op_code = 'S';
-}
+// Re-export shared classes from basui
+import { SiudAction } from '@aspect/gui';
+export { SiudAction, ApplicationMenu, ApplicationMenuItem, AuthorizationRolePermission,
+         ConstantValue, UserAccount, UserAccountPolicy } from '@aspect/gui';
 
-export class ApplicationMenu extends SiudAction {
-  Id?: string;
-  Caption?: string;
-  Icon?: string;
-  Order?: number;
-  ApplicationMenuItems?: ApplicationMenuItem[];
-}
-
-export class ApplicationMenuItem extends SiudAction {
-  MenuId?: string;
-  ItemId?: string;
-  Caption?: string;
-  Icon?: string;
-  RestUri?: string;
-  FilterOnList?: boolean;
-  Order?: number;
-}
-
-export class AuthorizationRolePermission extends SiudAction {
-  RoleId?: string;
-  AuthorizationObjectId?: string;
-  Action?: string;
-  LowLimit?: string;
-  HighLimit?: string;
-}
-
-export class ConstantValue extends SiudAction {
-  ConstantId?: string;
-  Value?: string;
-  Caption?: string;
-}
-
-export class UserAccount extends SiudAction {
-  UserId?: string;
-  Email?: string;
-  Phone?: string;
-  FirstName?: string;
-  LastName?: string;
-  PhotoUrl?: string;
-  Status?: string;
-  Locale?: string;
-  Currency?: string;
-  CreatedAt?: string;
-}
+// ── Trip-specific domain classes ──
 
 export class DriverProfile extends SiudAction {
   DriverId?: string;

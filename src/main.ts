@@ -8,6 +8,10 @@ import { routes } from 'app/app.routes';
 import { authInterceptor } from 'service/auth.interceptor';
 import { otpDevInterceptor } from 'service/otp_dev.interceptor';
 import { environment } from 'environment/environment';
+import { BASIS_GUI_CONFIG, BaseAuthService } from '@aspect/gui';
+import { AuthService } from 'service/auth.service';
+import { PublicRoutes } from 'app/app.routes';
+import { DashUser } from 'component/dashboard/dash_user';
 
 const interceptors: HttpInterceptorFn[] = [authInterceptor];
 if (!environment.production) {
@@ -20,5 +24,15 @@ bootstrapApplication(App, {
     provideHttpClient(withInterceptors(interceptors)),
     provideRouter(routes, withComponentInputBinding()),
     provideCharts(withDefaultRegisterables()),
+    { provide: BaseAuthService, useExisting: AuthService },
+    {
+      provide: BASIS_GUI_CONFIG,
+      useValue: {
+        opField: 'op_code',
+        hiddenFields: ['op_code', 'PartnerId'],
+        publicRoutes: PublicRoutes,
+        dashboardComponent: DashUser,
+      },
+    },
   ],
 });
