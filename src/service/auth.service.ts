@@ -116,13 +116,6 @@ export class AuthService extends BaseAuthService {
     }
   }
 
-  getReports(): RestReport[] {
-    if (!this.cache || !(this.cache as ApplicationData).Reports) {
-      return [];
-    }
-    return (this.cache as ApplicationData).Reports;
-  }
-
   // ── Override route building to add reports and trip-specific routes ──
 
   protected override buildExtraRoutes(data: import('@aspect/gui').ApplicationData): Routes {

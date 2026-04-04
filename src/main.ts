@@ -5,7 +5,7 @@ import { App } from 'app/app';
 import { HttpInterceptorFn, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { routes } from 'app/app.routes';
-import { authInterceptor } from 'service/auth.interceptor';
+import { authInterceptor, apiResponseInterceptor } from '@aspect/gui';
 import { otpDevInterceptor } from 'service/otp_dev.interceptor';
 import { environment } from 'environment/environment';
 import { BASIS_GUI_CONFIG, BaseAuthService } from '@aspect/gui';
@@ -13,7 +13,7 @@ import { AuthService } from 'service/auth.service';
 import { PublicRoutes } from 'app/app.routes';
 import { DashUser } from 'component/dashboard/dash_user';
 
-const interceptors: HttpInterceptorFn[] = [authInterceptor];
+const interceptors: HttpInterceptorFn[] = [apiResponseInterceptor, authInterceptor];
 if (!environment.production) {
   interceptors.push(otpDevInterceptor);
 }
