@@ -1,1 +1,1 @@
-export { BaseTable } from '@aspect/gui';
+export { BaseTable } from '@mustafa-karli/basui';

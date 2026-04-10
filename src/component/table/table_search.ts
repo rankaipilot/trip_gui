@@ -1,1 +1,1 @@
-export { TableSearch } from '@aspect/gui';
+export { TableSearch } from '@mustafa-karli/basui';

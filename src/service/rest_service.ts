@@ -1,1 +1,1 @@
-export { BackendService } from '@aspect/gui';
+export { BackendService } from '@mustafa-karli/basui';

@@ -1,1 +1,1 @@
-export { IsString, IsNumeric, IsStringConstraint, IsNumericConstraint } from '@aspect/gui';
+export { IsString, IsNumeric, IsStringConstraint, IsNumericConstraint } from '@mustafa-karli/basui';

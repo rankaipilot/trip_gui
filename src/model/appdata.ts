@@ -1,9 +1,11 @@
 // Re-export shared types from basui
-import type { ApplicationData as BaseApplicationData } from '@aspect/gui';
-export { DataType } from '@aspect/gui';
+import type { ApplicationData as BaseApplicationData, RestReport } from '@mustafa-karli/basui';
+export { DataType } from '@mustafa-karli/basui';
 export type { LoginRequest, LoginResponse, AuthSummary,
          TableColumn, TableAction, ForeignKey, TableDefinition, DictionaryPath,
-         PartnerRegistration } from '@aspect/gui';
+         PartnerRegistration, ReportParam, RestReport,
+         LoginResponse2FA, TwoFactorSetupResponse, TwoFactorVerifyRequest,
+         TwoFactorVerifyResponse, TrustedDevice } from '@mustafa-karli/basui';
 
 // Extended ApplicationData with trip-specific Reports field
 export interface ApplicationData extends BaseApplicationData {
@@ -11,18 +13,6 @@ export interface ApplicationData extends BaseApplicationData {
 }
 
 // ── Trip-specific types ──
-
-export interface ReportParam {
-    Name: string;
-    DataType: string;
-}
-
-export interface RestReport {
-    Id: string;
-    Version: string;
-    QueryName: string;
-    Params: ReportParam[];
-}
 
 export interface UserRegistration {
   FirstName:    string;

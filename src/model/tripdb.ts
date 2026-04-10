@@ -1,7 +1,7 @@
 // Re-export shared classes from basui
-import { SiudAction } from '@aspect/gui';
+import { SiudAction } from '@mustafa-karli/basui';
 export { SiudAction, ApplicationMenu, ApplicationMenuItem, AuthorizationRolePermission,
-         ConstantValue, UserAccount, UserAccountPolicy } from '@aspect/gui';
+         ConstantValue, UserAccount, UserAccountPolicy } from '@mustafa-karli/basui';
 
 // ── Trip-specific domain classes ──
 

@@ -1,1 +1,1 @@
-export { RecordForm } from '@aspect/gui';
+export { RecordForm } from '@mustafa-karli/basui';

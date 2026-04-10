@@ -3,7 +3,7 @@
   "compilerOptions": {
     "baseUrl": "src",
     "paths": {
-      "@aspect/gui": ["../node_modules/@aspect/gui/src/index"],
+      "@mustafa-karli/basui": ["../node_modules/@mustafa-karli/basui/src/index"],
       "app/*": ["app/*"],
       "environment/*": ["environment/*"],
       "component/*": ["component/*"],

@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs/operators';
-import { BaseAuthService, configureRestUrls } from '@aspect/gui';
+import { BaseAuthService, configureRestUrls } from '@mustafa-karli/basui';
 import {
   ApplicationData, LoginResponse,
   OtpRequest, OtpResponse, OtpVerifyRequest, OtpVerifyResponse,
@@ -16,12 +16,6 @@ import { DashUser } from 'component/dashboard/dash_user';
 import { PublicRoutes } from 'app/app.routes';
 import { environment } from 'environment/environment';
 
-// Configure basui REST URLs with trip_gui's endpoints
-configureRestUrls(environment.httphost, {
-  loginURL: RestURL.loginURL,
-  registerURL: RestURL.registerURL,
-});
-
 @Injectable({ providedIn: 'root' })
 export class AuthService extends BaseAuthService {
   private readonly tripHttp = inject(HttpClient);
@@ -30,6 +24,14 @@ export class AuthService extends BaseAuthService {
   private readonly resetPasswordUrl = environment.httphost + RestURL.resetPasswordURL;
   private readonly otpSendUrl = environment.httphost + RestURL.otpSendURL;
   private readonly otpVerifyUrl = environment.httphost + RestURL.otpVerifyURL;
+
+  constructor() {
+    super();
+    configureRestUrls(environment.httphost, {
+      loginURL: RestURL.loginURL,
+      registerURL: RestURL.registerURL,
+    });
+  }
 
   readonly currentRole = signal<UserRole | null>(
     (localStorage.getItem('role') as UserRole) || null,
@@ -118,7 +120,7 @@ export class AuthService extends BaseAuthService {
 
   // ── Override route building to add reports and trip-specific routes ──
 
-  protected override buildExtraRoutes(data: import('@aspect/gui').ApplicationData): Routes {
+  protected override buildExtraRoutes(data: import('@mustafa-karli/basui').ApplicationData): Routes {
     const extraRoutes: Routes = [
       ...PublicRoutes,
       { path: 'dashboard', component: DashUser },

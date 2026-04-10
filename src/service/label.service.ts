@@ -1,1 +1,1 @@
-export { LabelService } from '@aspect/gui';
+export { LabelService } from '@mustafa-karli/basui';

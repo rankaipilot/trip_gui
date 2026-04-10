@@ -1,1 +1,1 @@
-export { TableLookup } from '@aspect/gui';
+export { TableLookup } from '@mustafa-karli/basui';

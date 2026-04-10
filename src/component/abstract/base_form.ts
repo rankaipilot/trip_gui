@@ -1,1 +1,1 @@
-export { BaseForm } from '@aspect/gui';
+export { BaseForm } from '@mustafa-karli/basui';

@@ -1,1 +1,1 @@
-export { TableEdit } from '@aspect/gui';
+export { TableEdit } from '@mustafa-karli/basui';

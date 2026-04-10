@@ -6,10 +6,10 @@
   },
   "include": [
     "src/**/*.ts",
-    "node_modules/@aspect/gui/src/**/*.ts"
+    "node_modules/@mustafa-karli/basui/src/**/*.ts"
   ],
   "exclude": [
     "src/**/*.spec.ts",
-    "node_modules/@aspect/gui/node_modules/**"
+    "node_modules/@mustafa-karli/basui/node_modules/**"
   ]
 }

@@ -1,1 +1,1 @@
-export { authInterceptor } from '@aspect/gui';
+export { authInterceptor } from '@mustafa-karli/basui';

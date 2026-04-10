@@ -1,1 +1,1 @@
-export { TableForm } from '@aspect/gui';
+export { TableForm } from '@mustafa-karli/basui';

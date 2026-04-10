@@ -1,1 +1,1 @@
-export { DynamicField } from '@aspect/gui';
+export { DynamicField } from '@mustafa-karli/basui';

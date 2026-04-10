@@ -31,7 +31,7 @@
     "@angular/material": "^21.2.5",
     "@angular/platform-browser": "^21.2.7",
     "@angular/router": "^21.2.7",
-    "@aspect/gui": "github:mustafa-karli/basui",
+    "@mustafa-karli/basui": "^1.0.0",
     "class-validator": "^0.15.1",
     "ng2-charts": "^10.0.0",
     "rxjs": "~7.8.0",

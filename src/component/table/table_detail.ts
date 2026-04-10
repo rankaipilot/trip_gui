@@ -1,1 +1,1 @@
-export { TableDetail } from '@aspect/gui';
+export { TableDetail } from '@mustafa-karli/basui';
